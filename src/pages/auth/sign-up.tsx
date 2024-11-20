@@ -1,3 +1,4 @@
+import { Register } from "@/api/register";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,11 +15,37 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const signUpSchema = z.object({
+  name: z.string().nonempty(),
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+type SignUpFormSchema = z.infer<typeof signUpSchema>;
 
 export function SignUp() {
-  const form = useForm();
+  const form = useForm<SignUpFormSchema>({
+    resolver: zodResolver(signUpSchema),
+  });
+
+  const { mutateAsync: signUp } = useMutation({
+    mutationFn: Register,
+  });
+
+  async function handleSubmit({ name, email, password }: SignUpFormSchema) {
+    try {
+      await signUp({ name, email, password });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <Card className="mx-auto max-w-sm shadow-lg">
       <CardHeader className="text-2xl space-y-3">
@@ -30,7 +57,10 @@ export function SignUp() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form className="space-y-4">
+          <form
+            className="space-y-4"
+            onSubmit={form.handleSubmit(handleSubmit)}
+          >
             <FormField
               control={form.control}
               name="name"
@@ -77,7 +107,9 @@ export function SignUp() {
                 </FormItem>
               )}
             />
-            <Button className="w-full">Cadastrar</Button>
+            <Button className="w-full" disabled={form.formState.isLoading}>
+              Cadastrar
+            </Button>
           </form>
           <div className="text-center text-sm pt-2">
             Já tem uma conta?{" "}
