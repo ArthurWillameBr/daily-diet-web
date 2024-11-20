@@ -20,7 +20,7 @@ import { Link } from "react-router-dom";
 export function SignUp() {
   const form = useForm();
   return (
-    <Card className="mx-auto max-w-sm">
+    <Card className="mx-auto max-w-sm shadow-lg">
       <CardHeader className="text-2xl space-y-3">
         Cadastre-se
         <CardDescription>
@@ -36,7 +36,7 @@ export function SignUp() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Nome</FormLabel>
                   <FormControl>
                     <Input placeholder="John doe" {...field} />
                   </FormControl>

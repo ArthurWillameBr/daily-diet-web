@@ -20,7 +20,7 @@ import { Link } from "react-router-dom";
 export function SignIn() {
   const form = useForm();
   return (
-    <Card className="mx-auto max-w-sm">
+    <Card className="mx-auto max-w-sm shadow-lg">
       <CardHeader className="text-2xl space-y-3">
         Faça Login
         <CardDescription>
