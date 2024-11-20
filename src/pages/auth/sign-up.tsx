@@ -20,6 +20,7 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader } from "lucide-react";
 
 const signUpSchema = z.object({
   name: z.string().nonempty(),
@@ -34,7 +35,7 @@ export function SignUp() {
     resolver: zodResolver(signUpSchema),
   });
 
-  const { mutateAsync: signUp } = useMutation({
+  const { mutateAsync: signUp, isPending } = useMutation({
     mutationFn: Register,
   });
 
@@ -107,8 +108,8 @@ export function SignUp() {
                 </FormItem>
               )}
             />
-            <Button className="w-full" disabled={form.formState.isLoading}>
-              Cadastrar
+            <Button className="w-full" disabled={isPending}>
+              {isPending ? <Loader className="animate-spin" /> : "Cadastrar"}
             </Button>
           </form>
           <div className="text-center text-sm pt-2">
