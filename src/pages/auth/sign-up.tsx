@@ -17,20 +17,34 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 
-export function SignIn() {
+export function SignUp() {
   const form = useForm();
   return (
     <Card className="mx-auto max-w-sm">
       <CardHeader className="text-2xl space-y-3">
-        Faça Login
+        Cadastre-se
         <CardDescription>
           {" "}
-          Insira seu e-mail abaixo para entrar na sua conta.
+          Faça seu cadastro de maneira rápida e fácil
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="John doe" {...field} />
+                  </FormControl>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="email"
@@ -63,12 +77,12 @@ export function SignIn() {
                 </FormItem>
               )}
             />
-            <Button className="w-full">Entrar</Button>
+            <Button className="w-full">Cadastrar</Button>
           </form>
           <div className="text-center text-sm pt-2">
-            Não tem uma conta?{" "}
-            <Link to="/auth/sign-up" className="underline">
-              Cadastre-se
+            Já tem uma conta?{" "}
+            <Link to="/auth/sign-in" className="underline">
+              fazer login
             </Link>
           </div>
         </Form>

@@ -1,3 +1,3 @@
 export function Home() {
-  return <div>home</div>;
+  return <div className="bg-secondary h-screens">home</div>;
 }
