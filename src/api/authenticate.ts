@@ -1,6 +1,6 @@
 import { api } from "@/lib/axios";
 
-interface AuthenticateRequest {
+export interface AuthenticateRequest {
   email: string;
   password: string;
 }

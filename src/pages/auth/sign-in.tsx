@@ -14,11 +14,31 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { AuthContext } from "@/contexts/auth-context";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useContext } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { z } from "zod";
+
+const signInSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+type SignInFormSchema = z.infer<typeof signInSchema>;
 
 export function SignIn() {
-  const form = useForm();
+  const { signIn } = useContext(AuthContext);
+
+  const form = useForm<SignInFormSchema>({
+    resolver: zodResolver(signInSchema),
+  });
+
+  async function handleSubmit({ email, password }: SignInFormSchema) {
+    await signIn({ email, password });
+  }
+
   return (
     <Card className="mx-auto max-w-sm shadow-lg">
       <CardHeader className="text-2xl space-y-3">
@@ -30,7 +50,10 @@ export function SignIn() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form className="space-y-4">
+          <form
+            className="space-y-4"
+            onSubmit={form.handleSubmit(handleSubmit)}
+          >
             <FormField
               control={form.control}
               name="email"
