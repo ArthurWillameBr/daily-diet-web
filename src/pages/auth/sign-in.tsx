@@ -1,3 +1,9 @@
+import { Button } from "@/components/ui/button";
+
 export function SignIn() {
-  return <div>hello world</div>;
+  return (
+    <div>
+      <Button />
+    </div>
+  );
 }
