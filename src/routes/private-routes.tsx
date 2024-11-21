@@ -1,9 +1,8 @@
-import { AuthContext } from "@/contexts/auth-context";
-import { useContext } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { Navigate, Outlet } from "react-router-dom";
 
 export const PrivateRoutes = () => {
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated } = useAuth();
 
   return isAuthenticated ? <Outlet /> : <Navigate to="/auth/sign-in" replace />;
 };
