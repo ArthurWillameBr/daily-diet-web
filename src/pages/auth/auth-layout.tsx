@@ -1,7 +1,16 @@
 import { Header } from "@/components/header";
-import { Outlet } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { Outlet, useNavigate } from "react-router-dom";
 
 export function AuthLayout() {
+  const navigate = useNavigate();
+
+  const { isAuthenticated } = useAuth();
+
+  if (isAuthenticated) {
+    navigate("/home");
+  }
+
   return (
     <>
       <Header />

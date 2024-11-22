@@ -87,7 +87,7 @@ export function SignIn() {
               )}
             />
             <Button className="w-full" disabled={isPending}>
-              {isPending ? <Loader /> : "Entrar"}
+              {isPending ? <Loader className="animate-spin" /> : "Entrar"}
             </Button>
           </form>
           <div className="text-center text-sm pt-2">
