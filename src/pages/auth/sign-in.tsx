@@ -14,9 +14,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { AuthContext } from "@/contexts/auth-context";
+import { useAuth } from "@/hooks/useAuth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useContext } from "react";
+import { Loader } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { z } from "zod";
@@ -29,7 +29,7 @@ const signInSchema = z.object({
 type SignInFormSchema = z.infer<typeof signInSchema>;
 
 export function SignIn() {
-  const { signIn } = useContext(AuthContext);
+  const { signIn, isPending } = useAuth();
 
   const form = useForm<SignInFormSchema>({
     resolver: zodResolver(signInSchema),
@@ -40,7 +40,7 @@ export function SignIn() {
   }
 
   return (
-    <Card className="mx-auto max-w-sm shadow-lg">
+    <Card className="mx-auto max-w-sm shadow-lg p-3">
       <CardHeader className="text-2xl space-y-3">
         Faça Login
         <CardDescription>
@@ -86,7 +86,9 @@ export function SignIn() {
                 </FormItem>
               )}
             />
-            <Button className="w-full">Entrar</Button>
+            <Button className="w-full" disabled={isPending}>
+              {isPending ? <Loader /> : "Entrar"}
+            </Button>
           </form>
           <div className="text-center text-sm pt-2">
             Não tem uma conta?{" "}

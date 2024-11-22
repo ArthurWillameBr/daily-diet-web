@@ -48,7 +48,7 @@ export function SignUp() {
   }
 
   return (
-    <Card className="mx-auto max-w-sm shadow-lg">
+    <Card className="mx-auto max-w-sm shadow-lg p-3">
       <CardHeader className="text-2xl space-y-3">
         Cadastre-se
         <CardDescription>
