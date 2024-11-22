@@ -1,9 +1,17 @@
+import { GetMeal } from "@/api/get-meal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, Plus, Settings, Utensils } from "lucide-react";
 
 export function Home() {
+  const { data: meals } = useQuery({
+    queryKey: ["meals"],
+    queryFn: GetMeal,
+  });
+
+  console.log(meals);
   return (
     <main className="flex flex-col h-screen max-w-6xl mx-auto px-5">
       <div className="flex items-center justify-between p-5 md:p-8">
@@ -41,36 +49,29 @@ export function Home() {
 
       <ScrollArea className="flex-1 px-4 md:px-8">
         <div className="space-y-6 pb-6 md:pb-8">
-          <div className="space-y-4">
-            <h2 className="font-medium pt-4 text-base md:text-lg">12.02.24</h2>
-            {[1, 2, 3].map((_, index) => (
-              <Card key={index} className="shadow-md">
-                <CardContent className="flex items-center p-4 md:p-5">
-                  <span className="text-sm md:text-base">20:00</span>
-                  <div className="w-[1px] h-4 mx-4 bg-slate-500" />
-                  <span className="flex-1 text-sm md:text-base">
-                    Frango grelhado
-                  </span>
-                  <div className="bg-[#E5F0DB] rounded-full size-4 md:size-5" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          <div className="space-y-4">
-            <h2 className="font-medium text-base md:text-lg">11.02.24</h2>
-            {[1, 2, 3].map((_, index) => (
-              <Card key={index} className="shadow-md">
-                <CardContent className="flex items-center p-4 md:p-5">
-                  <span className="text-sm md:text-base">20:00</span>
-                  <div className="w-[1px] h-4 mx-4 bg-slate-500" />
-                  <span className="flex-1 text-sm md:text-base">
-                    Frango grelhado
-                  </span>
-                  <div className="bg-[#E5F0DB] rounded-full size-4 md:size-5" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {meals?.map((meal, index) => (
+            <div key={index} className="space-y-4">
+              <h2 className="font-medium text-base md:text-lg pt-4">
+                {meal.date}
+              </h2>
+              {meal.meals.map((meal, index) => (
+                <Card key={index} className="shadow-md">
+                  <CardContent className="flex items-center p-4 md:p-5">
+                    <span className="text-sm md:text-base">{meal.time}</span>
+                    <div className="w-[1px] h-4 mx-4 bg-slate-500" />
+                    <span className="flex-1 text-sm md:text-base">
+                      {meal.name}
+                    </span>
+                    <div
+                      className={`${
+                        meal.isOnDiet ? "bg-[#E5F0DB]" : "bg-[#FDE8E8]"
+                      } rounded-full size-4 md:size-5`}
+                    />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ))}
         </div>
       </ScrollArea>
     </main>
