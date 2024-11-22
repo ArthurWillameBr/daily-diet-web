@@ -18,7 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 const signInSchema = z.object({
@@ -29,7 +29,9 @@ const signInSchema = z.object({
 type SignInFormSchema = z.infer<typeof signInSchema>;
 
 export function SignIn() {
-  const { signIn, isPending } = useAuth();
+  const navigate = useNavigate();
+
+  const { signIn, isPending, isAuthenticated } = useAuth();
 
   const form = useForm<SignInFormSchema>({
     resolver: zodResolver(signInSchema),
@@ -38,7 +40,9 @@ export function SignIn() {
   async function handleSubmit({ email, password }: SignInFormSchema) {
     await signIn({ email, password });
   }
-
+  if (isAuthenticated) {
+    navigate("/home");
+  }
   return (
     <Card className="mx-auto max-w-sm shadow-lg p-3">
       <CardHeader className="text-2xl space-y-3">

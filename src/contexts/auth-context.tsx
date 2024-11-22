@@ -8,6 +8,7 @@ interface AuthContextProps {
   signOut: () => void;
   isAuthenticated: boolean;
   isPending: boolean;
+  isTokenLoading: boolean;
 }
 
 interface AuthProviderProps {
@@ -18,6 +19,7 @@ export const AuthContext = createContext({} as AuthContextProps);
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadTokenFromStorage = () => {
@@ -26,7 +28,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (storageToken) {
         setToken(storageToken);
         api.defaults.headers.common["Authorization"] = `Bearer ${storageToken}`;
+      } else {
+        setToken(null);
       }
+      setIsLoading(false);
     };
 
     loadTokenFromStorage();
@@ -63,6 +68,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         signOut,
         isAuthenticated: !!token,
         isPending,
+        isTokenLoading: isLoading,
       }}
     >
       {children}

@@ -1,17 +1,65 @@
+import { CreateMeal } from "@/api/create-meal";
 import { GetMeal } from "@/api/get-meal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowUpRight, Plus, Settings, Utensils } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowUpRight, Loader, Plus, Settings, Utensils } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+const createMealSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  dateTime: z.string(),
+  isOnDiet: z.boolean(),
+});
+
+type CreateMealFormSchema = z.infer<typeof createMealSchema>;
 
 export function Home() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const queryClient = useQueryClient();
+
   const { data: meals } = useQuery({
     queryKey: ["meals"],
     queryFn: GetMeal,
   });
 
-  console.log(meals);
+  const { mutateAsync: createMeal, isPending } = useMutation({
+    mutationFn: CreateMeal,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["meals"] });
+      setIsOpen(false);
+    },
+  });
+
+  const form = useForm<CreateMealFormSchema>({
+    resolver: zodResolver(createMealSchema),
+  });
+
+  async function handleSubmit(data: CreateMealFormSchema) {
+    await createMeal(data);
+  }
+
   return (
     <main className="flex flex-col h-screen max-w-6xl mx-auto px-5">
       <div className="flex items-center justify-between p-5 md:p-8">
@@ -42,9 +90,115 @@ export function Home() {
 
       <div className="px-4 md:px-8 py-2 md:py-4 space-y-3">
         <h2 className="font-semibold text-lg md:text-xl">Refeições</h2>
-        <Button className="w-full h-12 md:h-14 text-base md:text-lg">
-          <Plus className="mr-2 w-5 h-5 md:w-6 md:h-6" /> Nova refeição
-        </Button>
+        <Dialog open={isOpen}>
+          <DialogTrigger asChild>
+            <Button
+              onClick={() => setIsOpen(true)}
+              className="w-full h-12 md:h-14 text-base md:text-lg"
+            >
+              <Plus className="mr-2 w-5 h-5 md:w-6 md:h-6" /> Nova refeição
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <h2 className="font-semibold text-lg md:text-xl">
+                Adicione uma nova refeição
+              </h2>
+            </DialogHeader>
+            <Form {...form}>
+              <form
+                className="space-y-4"
+                onSubmit={form.handleSubmit(handleSubmit)}
+              >
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Frango grelhado" {...field} />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Descrição</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="200g de frango grelhado"
+                          {...field}
+                        />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="dateTime"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="200g de frango grelhado"
+                          {...field}
+                        />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="isOnDiet"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Está dentro da dieta?</FormLabel>
+                      <FormControl>
+                        <div className="flex gap-4">
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              value="true"
+                              checked={field.value === true}
+                              onChange={() => field.onChange(true)}
+                              className="form-radio"
+                            />
+                            <span>Sim</span>
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              value="false"
+                              checked={field.value === false}
+                              onChange={() => field.onChange(false)}
+                              className="form-radio"
+                            />
+                            <span>Não</span>
+                          </label>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button className="w-full" disabled={isPending}>
+                  {isPending ? <Loader className="animate-spin" /> : "Enviar"}
+                </Button>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <ScrollArea className="flex-1 px-4 md:px-8">
