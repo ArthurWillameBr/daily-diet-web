@@ -3,7 +3,7 @@ import { api } from "@/lib/axios";
 interface CreateMealRequest {
   name: string;
   description: string | null;
-  dateTime: string;
+  dateTime: Date;
   isOnDiet: boolean;
 }
 

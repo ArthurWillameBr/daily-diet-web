@@ -2,12 +2,7 @@ import { CreateMeal } from "@/api/create-meal";
 import { GetMeal } from "@/api/get-meal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Form,
   FormControl,
@@ -18,6 +13,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowUpRight, Loader, Plus, Settings, Utensils } from "lucide-react";
@@ -28,13 +31,15 @@ import { z } from "zod";
 const createMealSchema = z.object({
   name: z.string(),
   description: z.string(),
-  dateTime: z.string(),
+  dateTime: z.date(),
+  time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Hora inválida"),
   isOnDiet: z.boolean(),
 });
 
 type CreateMealFormSchema = z.infer<typeof createMealSchema>;
 
 export function Home() {
+  const isLargeScreen = useMediaQuery("(min-width: 1024px)");
   const [isOpen, setIsOpen] = useState(false);
 
   const queryClient = useQueryClient();
@@ -57,7 +62,15 @@ export function Home() {
   });
 
   async function handleSubmit(data: CreateMealFormSchema) {
-    await createMeal(data);
+    const [hours, minutes] = data.time.split(":").map(Number);
+
+    const combinedDateTime = new Date(data.dateTime);
+    combinedDateTime.setHours(hours, minutes);
+
+    await createMeal({
+      ...data,
+      dateTime: combinedDateTime,
+    });
   }
 
   return (
@@ -90,21 +103,32 @@ export function Home() {
 
       <div className="px-4 md:px-8 py-2 md:py-4 space-y-3">
         <h2 className="font-semibold text-lg md:text-xl">Refeições</h2>
-        <Dialog open={isOpen}>
-          <DialogTrigger asChild>
+        <Sheet
+          open={isOpen}
+          onOpenChange={(open) => {
+            setIsOpen(open);
+            if (!open) {
+              form.reset();
+            }
+          }}
+        >
+          <SheetTrigger asChild>
             <Button
               onClick={() => setIsOpen(true)}
               className="w-full h-12 md:h-14 text-base md:text-lg"
             >
               <Plus className="mr-2 w-5 h-5 md:w-6 md:h-6" /> Nova refeição
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
+          </SheetTrigger>
+          <SheetContent side={isLargeScreen ? "right" : "bottom"}>
+            <SheetHeader className="mb-2">
               <h2 className="font-semibold text-lg md:text-xl">
                 Adicione uma nova refeição
               </h2>
-            </DialogHeader>
+              <SheetDescription>
+                Preencha os campos abaixo para adicionar uma nova refeição
+              </SheetDescription>
+            </SheetHeader>
             <Form {...form}>
               <form
                 className="space-y-4"
@@ -132,7 +156,7 @@ export function Home() {
                       <FormLabel>Descrição</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="200g de frango grelhado"
+                          placeholder="200g de frango grelhado com legumes"
                           {...field}
                         />
                       </FormControl>
@@ -141,23 +165,35 @@ export function Home() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="dateTime"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Data</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="200g de frango grelhado"
-                          {...field}
+                <div className="flex gap-4">
+                  <FormField
+                    control={form.control}
+                    name="dateTime"
+                    render={({ field }) => (
+                      <FormItem className="w-fit">
+                        <FormLabel>Data</FormLabel>
+                        <DatePicker
+                          value={field.value}
+                          onChange={field.onChange}
                         />
-                      </FormControl>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="time"
+                    render={({ field }) => (
+                      <FormItem className="w-fit lg:w-[160px]">
+                        <FormLabel>Hora</FormLabel>
+                        <FormControl>
+                          <Input type="time" placeholder="HH:mm" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <FormField
                   control={form.control}
                   name="isOnDiet"
@@ -166,39 +202,66 @@ export function Home() {
                       <FormLabel>Está dentro da dieta?</FormLabel>
                       <FormControl>
                         <div className="flex gap-4">
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              value="true"
-                              checked={field.value === true}
-                              onChange={() => field.onChange(true)}
-                              className="form-radio"
-                            />
-                            <span>Sim</span>
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              value="false"
-                              checked={field.value === false}
-                              onChange={() => field.onChange(false)}
-                              className="form-radio"
-                            />
-                            <span>Não</span>
-                          </label>
+                          <button
+                            type="button"
+                            className={`lg:w-[200px] space-x-2 w-full h-12 md:h-14 flex items-center justify-center rounded-lg
+                              ${
+                                field.value === true
+                                  ? "bg-green-100 border border-green-500"
+                                  : "bg-gray-200"
+                              }`}
+                            onClick={() => field.onChange(true)}
+                          >
+                            <div className="bg-green-500 rounded-full size-2" />
+                            <span
+                              className={`text-base font-medium ${
+                                field.value === true
+                                  ? "text-green-500"
+                                  : "text-gray-700"
+                              }`}
+                            >
+                              Sim
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            className={`lg:w-[200px] space-x-2 w-full h-12 md:h-14 flex items-center justify-center rounded-lg 
+                          ${
+                            field.value === false
+                              ? "bg-red-100 border border-red-500"
+                              : "bg-gray-200"
+                          }`}
+                            onClick={() => field.onChange(false)}
+                          >
+                            <div className="bg-red-500 rounded-full size-2 " />
+
+                            <span
+                              className={`text-base font-medium ${
+                                field.value === false
+                                  ? "text-red-500"
+                                  : "text-gray-700"
+                              }`}
+                            >
+                              Não
+                            </span>
+                          </button>
                         </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button className="w-full" disabled={isPending}>
-                  {isPending ? <Loader className="animate-spin" /> : "Enviar"}
+                <Button className="w-full h-12" disabled={isPending}>
+                  {isPending ? (
+                    <Loader className="animate-spin" />
+                  ) : (
+                    "Cadastrar refeição"
+                  )}
                 </Button>
               </form>
             </Form>
-          </DialogContent>
-        </Dialog>
+          </SheetContent>
+        </Sheet>
       </div>
 
       <ScrollArea className="flex-1 px-4 md:px-8">
