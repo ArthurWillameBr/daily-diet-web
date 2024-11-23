@@ -17,10 +17,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader } from "lucide-react";
+import { toast } from "sonner";
 
 const signUpSchema = z.object({
   name: z.string().nonempty(),
@@ -31,12 +32,23 @@ const signUpSchema = z.object({
 type SignUpFormSchema = z.infer<typeof signUpSchema>;
 
 export function SignUp() {
+  const navigate = useNavigate();
+
   const form = useForm<SignUpFormSchema>({
     resolver: zodResolver(signUpSchema),
   });
 
   const { mutateAsync: signUp, isPending } = useMutation({
     mutationFn: Register,
+    onSuccess: (_, variables) => {
+      const { email } = variables;
+      toast.success(`Bem-vindo ${variables.name}!`, {
+        action: {
+          label: "Fazer login",
+          onClick: () => navigate(`/auth/sign-in?email=${email}`),
+        },
+      });
+    },
   });
 
   async function handleSubmit({ name, email, password }: SignUpFormSchema) {

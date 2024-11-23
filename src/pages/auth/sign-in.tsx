@@ -18,7 +18,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const signInSchema = z.object({
@@ -30,19 +31,31 @@ type SignInFormSchema = z.infer<typeof signInSchema>;
 
 export function SignIn() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const { signIn, isPending, isAuthenticated } = useAuth();
 
   const form = useForm<SignInFormSchema>({
     resolver: zodResolver(signInSchema),
+    defaultValues: {
+      email: searchParams.get("email") || "",
+    },
   });
 
   async function handleSubmit({ email, password }: SignInFormSchema) {
-    await signIn({ email, password });
+    try {
+      await signIn({ email, password });
+      toast.success("Login efetuado com sucesso!");
+    } catch (error) {
+      console.log(error);
+      toast.error("Erro ao fazer login");
+    }
   }
+
   if (isAuthenticated) {
     navigate("/home");
   }
+
   return (
     <Card className="mx-auto max-w-sm shadow-lg p-3">
       <CardHeader className="text-2xl space-y-3">
