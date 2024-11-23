@@ -1,6 +1,7 @@
 import { api } from "@/lib/axios";
 
 interface FormattedMeal {
+  id: string;
   time: string;
   name: string;
   description: string | null;

@@ -1,3 +1,4 @@
+import { DeleteMeal } from "@/api/delete-meal";
 import { GetMeal } from "@/api/get-meal";
 import { GetTotalMeals } from "@/api/get-total-meals";
 import { GetTotalMealsWithinDiet } from "@/api/get-total-meals-within-diet";
@@ -15,7 +16,7 @@ import {
 } from "@/components/ui/sheet";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { calculateDietPercentage } from "@/utils/calculate-diet-percentage";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "date-fns";
 import {
   ArrowUpRight,
@@ -30,12 +31,16 @@ import { Link } from "react-router-dom";
 export function Home() {
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
+  const queryClient = useQueryClient();
+
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: meals } = useQuery({
     queryKey: ["meals"],
     queryFn: GetMeal,
   });
+
+  console.log(meals);
 
   const { data: totalMeals } = useQuery({
     queryKey: ["total-meals"],
@@ -46,6 +51,17 @@ export function Home() {
     queryKey: ["meals-within-diet"],
     queryFn: GetTotalMealsWithinDiet,
   });
+
+  const { mutateAsync: deleteMeal } = useMutation({
+    mutationFn: DeleteMeal,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["meals"] });
+    },
+  });
+
+  async function handleDeleteMeal(mealId: string) {
+    await deleteMeal({ mealId });
+  }
 
   const dietPercentage = calculateDietPercentage(
     totalMeals,
@@ -163,6 +179,7 @@ export function Home() {
                         Editar Refeição
                       </Button>
                       <Button
+                        onClick={() => handleDeleteMeal(meal.id)}
                         variant="ghost"
                         className="w-full border-2 border-neutral-900"
                       >
