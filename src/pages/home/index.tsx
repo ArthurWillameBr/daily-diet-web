@@ -2,15 +2,34 @@ import { GetMeal } from "@/api/get-meal";
 import { GetTotalMeals } from "@/api/get-total-meals";
 import { GetTotalMealsWithinDiet } from "@/api/get-total-meals-within-diet";
 import { AddMealsForm } from "@/components/add-meals-form";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { calculateDietPercentage } from "@/utils/calculate-diet-percentage";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpRight, Settings, Utensils } from "lucide-react";
+import { formatDate } from "date-fns";
+import {
+  ArrowUpRight,
+  PencilLine,
+  Settings,
+  Trash2,
+  Utensils,
+} from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export function Home() {
+  const isLargeScreen = useMediaQuery("(min-width: 1024px)");
+
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: meals } = useQuery({
@@ -89,20 +108,70 @@ export function Home() {
                 {meal.date}
               </h2>
               {meal.meals.map((meal, index) => (
-                <Card key={index} className="shadow-md">
-                  <CardContent className="flex items-center p-4 md:p-5">
-                    <span className="text-sm md:text-base">{meal.time}</span>
-                    <div className="w-[1px] h-4 mx-4 bg-slate-500" />
-                    <span className="flex-1 text-sm md:text-base">
-                      {meal.name}
-                    </span>
-                    <div
-                      className={`${
-                        meal.isOnDiet ? "bg-[#E5F0DB]" : "bg-[#FDE8E8]"
-                      } rounded-full size-4 md:size-5`}
-                    />
-                  </CardContent>
-                </Card>
+                <Sheet key={index}>
+                  <SheetTrigger asChild>
+                    <Card className="shadow-md cursor-pointer">
+                      <CardContent className="flex items-center p-4 md:p-5">
+                        <span className="text-sm md:text-base">
+                          {meal.time}
+                        </span>
+                        <div className="w-[1px] h-4 mx-4 bg-slate-500" />
+                        <span className="flex-1 text-sm md:text-base">
+                          {meal.name}
+                        </span>
+                        <div
+                          className={`${
+                            meal.isOnDiet ? "bg-[#E5F0DB]" : "bg-[#FDE8E8]"
+                          } rounded-full size-4 md:size-5`}
+                        />
+                      </CardContent>
+                    </Card>
+                  </SheetTrigger>
+                  <SheetContent
+                    side={isLargeScreen ? "right" : "bottom"}
+                    className="flex flex-col"
+                  >
+                    <SheetHeader>
+                      <SheetTitle>Refeição</SheetTitle>
+                    </SheetHeader>
+                    <div className="p-4 md:p-5 flex-grow overflow-auto">
+                      <h3 className="font-semibold text-lg">{meal.name}</h3>
+                      <p className="text-sm md:text-base text-gray-500/90">
+                        {meal.description}
+                      </p>
+                      <h2 className="pt-4 text-md font-semibold">
+                        Data e Hora
+                      </h2>
+                      <p className="text-sm md:text-base text-gray-500/90 pt-2">
+                        {formatDate(new Date(meal.date), "dd/MM/yyyy")} às{" "}
+                        {meal.time}
+                      </p>
+                      <Badge className="bg-slate-100 px-3 py-2 rounded-full flex items-center gap-2 w-fit mt-4">
+                        <div
+                          className={`${
+                            meal.isOnDiet ? "bg-green-500" : "bg-red-500"
+                          } rounded-full size-2`}
+                        />
+                        <p className="text-gray-500/90">
+                          {meal.isOnDiet ? "Dentro da dieta" : "Fora da dieta"}
+                        </p>
+                      </Badge>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <Button className="w-full">
+                        <PencilLine />
+                        Editar Refeição
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="w-full border-2 border-neutral-900"
+                      >
+                        <Trash2 />
+                        Excluir Refeição
+                      </Button>
+                    </div>
+                  </SheetContent>
+                </Sheet>
               ))}
             </div>
           ))}

@@ -3,6 +3,8 @@ import { api } from "@/lib/axios";
 interface FormattedMeal {
   time: string;
   name: string;
+  description: string | null;
+  date: Date;
   isOnDiet: boolean;
 }
 
