@@ -1,6 +1,7 @@
 import { CreateMeal } from "@/api/create-meal";
 import { GetMeal } from "@/api/get-meal";
 import { GetTotalMeals } from "@/api/get-total-meals";
+import { GetTotalMealsWithinDiet } from "@/api/get-total-meals-within-diet";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -43,6 +44,17 @@ export function Home() {
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
   const [isOpen, setIsOpen] = useState(false);
 
+  function calculateDietPercentage(
+    totalMeals?: number,
+    totalMealsWithinDiet?: number
+  ): string {
+    if (!totalMeals || totalMeals === 0 || !totalMealsWithinDiet) {
+      return "0%";
+    }
+    const percentage = (totalMealsWithinDiet / totalMeals) * 100;
+    return `${percentage.toFixed(2)}%`;
+  }
+
   const queryClient = useQueryClient();
 
   const { data: meals } = useQuery({
@@ -63,6 +75,11 @@ export function Home() {
     queryFn: GetTotalMeals,
   });
 
+  const { data: totalMealsWithinDiet } = useQuery({
+    queryKey: ["meals-within-diet"],
+    queryFn: GetTotalMealsWithinDiet,
+  });
+
   const form = useForm<CreateMealFormSchema>({
     resolver: zodResolver(createMealSchema),
   });
@@ -78,6 +95,14 @@ export function Home() {
       dateTime: combinedDateTime,
     });
   }
+
+  const dietPercentage = calculateDietPercentage(
+    totalMeals,
+    totalMealsWithinDiet
+  );
+
+  const cardColor =
+    Number(dietPercentage) >= 50 ? "bg-[#E5F0DB]" : "bg-[#FDE8E8]";
 
   return (
     <main className="flex flex-col h-screen max-w-6xl mx-auto px-5">
@@ -95,13 +120,13 @@ export function Home() {
       </div>
       <div className="flex flex-col justify-center items-center p-4 md:p-8">
         <Card className="w-full max-w-[450px] md:max-w-[600px] relative rounded-lg">
-          <CardContent className="bg-[#E5F0DB] text-center">
+          <CardContent className={`${cardColor} text-center`}>
             <div className="relative">
               <ArrowUpRight className="absolute top-2 right-2 text-lime-500 w-6 h-6 md:w-8 md:h-8" />
             </div>
             <div className="p-5 md:p-8">
               <h2 className="text-2xl md:text-4xl font-semibold">
-                {totalMeals}
+                {dietPercentage}
               </h2>
               <p className="md:text-lg">das refeições dentro da dieta</p>
             </div>

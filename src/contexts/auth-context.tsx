@@ -45,7 +45,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const data = await authenticate({ email, password });
       const token = data.token;
-      console.log(token);
       setToken(token);
       api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       localStorage.setItem("@Auth:token", token);
