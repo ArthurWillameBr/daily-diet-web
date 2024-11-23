@@ -8,6 +8,7 @@ import { calculateDietPercentage } from "@/utils/calculate-diet-percentage";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, Settings, Utensils } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export function Home() {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,6 +36,9 @@ export function Home() {
   const cardColor =
     Number(dietPercentage) >= 50 ? "bg-[#E5F0DB]" : "bg-[#FDE8E8]";
 
+  const arrowUpRightColor =
+    Number(dietPercentage) >= 50 ? "text-lime-500" : "text-red-500";
+
   return (
     <main className="flex flex-col h-screen max-w-6xl mx-auto px-5">
       <div className="flex items-center justify-between p-5 md:p-8">
@@ -50,19 +54,26 @@ export function Home() {
         </div>
       </div>
       <div className="flex flex-col justify-center items-center p-4 md:p-8">
-        <Card className="w-full max-w-[450px] md:max-w-[600px] relative rounded-lg">
-          <CardContent className={`${cardColor} text-center`}>
-            <div className="relative">
-              <ArrowUpRight className="absolute top-2 right-2 text-lime-500 w-6 h-6 md:w-8 md:h-8" />
-            </div>
-            <div className="p-5 md:p-8">
-              <h2 className="text-2xl md:text-4xl font-semibold">
-                {dietPercentage}%
-              </h2>
-              <p className="md:text-lg">das refeições dentro da dieta</p>
-            </div>
-          </CardContent>
-        </Card>
+        <Link
+          to="/statistics"
+          className="w-full max-w-[450px] md:max-w-[600px] relative rounded-lg"
+        >
+          <Card>
+            <CardContent className={`${cardColor} text-center`}>
+              <div className="relative">
+                <ArrowUpRight
+                  className={`${arrowUpRightColor} absolute top-2 right-2 w-6 h-6 md:w-8 md:h-8`}
+                />
+              </div>
+              <div className="p-5 md:p-8">
+                <h2 className="text-2xl md:text-4xl font-semibold">
+                  {dietPercentage}%
+                </h2>
+                <p className="md:text-lg">das refeições dentro da dieta</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       <div className="px-4 md:px-8 py-2 md:py-4 space-y-3">
