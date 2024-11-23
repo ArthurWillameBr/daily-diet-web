@@ -1,5 +1,6 @@
 import { CreateMeal } from "@/api/create-meal";
 import { GetMeal } from "@/api/get-meal";
+import { GetTotalMeals } from "@/api/get-total-meals";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -57,6 +58,11 @@ export function Home() {
     },
   });
 
+  const { data: totalMeals } = useQuery({
+    queryKey: ["total-meals"],
+    queryFn: GetTotalMeals,
+  });
+
   const form = useForm<CreateMealFormSchema>({
     resolver: zodResolver(createMealSchema),
   });
@@ -94,7 +100,9 @@ export function Home() {
               <ArrowUpRight className="absolute top-2 right-2 text-lime-500 w-6 h-6 md:w-8 md:h-8" />
             </div>
             <div className="p-5 md:p-8">
-              <h2 className="text-2xl md:text-4xl font-semibold">98.3%</h2>
+              <h2 className="text-2xl md:text-4xl font-semibold">
+                {totalMeals}
+              </h2>
               <p className="md:text-lg">das refeições dentro da dieta</p>
             </div>
           </CardContent>
