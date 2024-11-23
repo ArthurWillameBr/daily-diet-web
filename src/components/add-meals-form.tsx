@@ -51,7 +51,13 @@ export function AddMealsForm({ isOpen, setIsOpen }: AddMealsFormProps) {
     mutationFn: CreateMeal,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["meals", "meals-within-diet"],
+        queryKey: ["meals"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["total-meals"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["meals-within-diet"],
       });
       setIsOpen(false);
     },
