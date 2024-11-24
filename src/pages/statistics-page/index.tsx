@@ -1,37 +1,16 @@
-import { AiReport } from "@/api/ai-report";
 import { GetBestOnDietSequence } from "@/api/get-best-on-diet-sequence";
 import { GetTotalMeals } from "@/api/get-total-meals";
 import { GetTotalMealsOutsideDiet } from "@/api/get-total-meals-outside-diet";
 import { GetTotalMealsWithinDiet } from "@/api/get-total-meals-within-diet";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { calculateDietPercentage } from "@/utils/calculate-diet-percentage";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, BotIcon, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import Markdown from "react-markdown";
 import { SkeletonStatistics } from "./skeleton-statistics";
+import { AiReportDialog } from "@/components/ai-report-dialog";
 
 export function StatisticsPage() {
-  const [report, setReport] = useState<string | null>("");
-
-  async function handleGenerateReport() {
-    const aiReport = await AiReport();
-    setReport(aiReport.report);
-  }
-
   const { data: totalMeals, isLoading: isTotalMealsLoading } = useQuery({
     queryKey: ["total-meals"],
     queryFn: GetTotalMeals,
@@ -102,41 +81,7 @@ export function StatisticsPage() {
           <h2 className="font-semibold">Estatísticas Gerais</h2>
         </div>
         <div className="absolute right-4">
-          <Dialog
-            onOpenChange={(open) => {
-              if (!open) {
-                setReport(null);
-              }
-            }}
-          >
-            <DialogTrigger asChild>
-              <Button size="sm" className="flex items-center">
-                <BotIcon />
-                Relatório com IA
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Relatório com IA</DialogTitle>
-                <DialogDescription>
-                  Use inteligência artificial para gerar um relatório com
-                  insights sobre sua dieta.
-                </DialogDescription>
-              </DialogHeader>
-              <ScrollArea className="prose max-h-[450px] text-black prose-h3:text-black prose-h4:text-black prose-strong:text-black">
-                <Markdown>{report}</Markdown>
-              </ScrollArea>
-              <DialogFooter>
-                <DialogClose>
-                  <Button variant="ghost">Cancelar</Button>
-                </DialogClose>
-                <Button onClick={handleGenerateReport}>
-                  <Sparkles />
-                  Gerar relatório
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <AiReportDialog />
         </div>
       </div>
       <div className="space-y-3">
