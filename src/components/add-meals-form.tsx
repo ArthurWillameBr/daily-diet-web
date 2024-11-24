@@ -37,8 +37,13 @@ type CreateMealFormSchema = z.infer<typeof createMealSchema>;
 interface AddMealsFormProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
+  onSuccess?: () => void;
 }
-export function AddMealsForm({ isOpen, setIsOpen }: AddMealsFormProps) {
+export function AddMealsForm({
+  isOpen,
+  setIsOpen,
+  onSuccess,
+}: AddMealsFormProps) {
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
   const queryClient = useQueryClient();
@@ -59,7 +64,11 @@ export function AddMealsForm({ isOpen, setIsOpen }: AddMealsFormProps) {
       queryClient.invalidateQueries({
         queryKey: ["meals-within-diet"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["gamification-status"],
+      });
       setIsOpen(false);
+      if (onSuccess) onSuccess();
     },
   });
 
