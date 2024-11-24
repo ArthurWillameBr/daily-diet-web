@@ -5,7 +5,7 @@ import { GetTotalMealsWithinDiet } from "@/api/get-total-meals-within-diet";
 import { Card, CardContent } from "@/components/ui/card";
 import { calculateDietPercentage } from "@/utils/calculate-diet-percentage";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, TrendingUp, UtensilsCrossed, Check, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SkeletonStatistics } from "./skeleton-statistics";
 import { AiReportDialog } from "@/components/ai-report-dialog";
@@ -88,6 +88,9 @@ export function StatisticsPage() {
         <Card className="border-none shadow-md">
           <CardContent className="bg-gray-50 rounded-lg text-center h-full">
             <div className="pt-7 md:p-8">
+              <div className="flex items-center justify-center mb-4">
+                <TrendingUp className="w-6 h-6 text-blue-500" />{" "}
+              </div>
               <h2 className="text-2xl font-semibold">{bestOnDietSequence}</h2>
               <p className="text-sm">
                 melhor sequência de pratos dentro da dieta
@@ -98,6 +101,9 @@ export function StatisticsPage() {
         <Card className="border-none shadow-md">
           <CardContent className="bg-gray-50 rounded-lg text-center h-full">
             <div className="pt-7 md:p-8">
+              <div className="flex items-center justify-center mb-4">
+                <UtensilsCrossed className="w-6 h-6 text-purple-500" />{" "}
+              </div>
               <h2 className="text-2xl font-semibold">{totalMeals}</h2>
               <p className="text-sm">refeições registradas</p>
             </div>
@@ -107,6 +113,9 @@ export function StatisticsPage() {
           <Card className="border-none shadow-md ">
             <CardContent className="bg-[#E5F0DB] rounded-lg text-center h-full">
               <div className="pt-7 md:p-8">
+                <div className="flex items-center justify-center mb-4">
+                  <Check className="w-6 h-6 text-emerald-500" />{" "}
+                </div>
                 <h2 className="text-2xl font-semibold">
                   {totalMealsWithinDiet}
                 </h2>
@@ -117,6 +126,9 @@ export function StatisticsPage() {
           <Card className="border-none shadow-md">
             <CardContent className="bg-[#FDE8E8] rounded-lg text-center h-full">
               <div className="pt-7 md:p-8">
+                <div className="flex items-center justify-center mb-4">
+                  <X className="w-6 h-6 text-rose-500" />{" "}
+                </div>
                 <h2 className="text-2xl font-semibold">
                   {totalMealsOutsideDiet}
                 </h2>
