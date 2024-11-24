@@ -19,13 +19,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { calculateDietPercentage } from "@/utils/calculate-diet-percentage";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "date-fns";
-import {
-  ArrowUpRight,
-  PencilLine,
-  Settings,
-  Trash2,
-  Utensils,
-} from "lucide-react";
+import { ArrowUpRight, PencilLine, Trash2, Utensils } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { SkeletonHome } from "./sheleton-home";
