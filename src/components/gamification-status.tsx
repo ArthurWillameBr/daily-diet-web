@@ -1,17 +1,33 @@
+"use client";
+
+import { GetProfile } from "@/api/get-profile";
 import { useGamificationStatus } from "@/hooks/useGamificationStatus";
 import { getHonorificTitle } from "@/utils/get-honorific-title";
+import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, ChevronUp, ChevronDown, Trophy } from "lucide-react";
+import { Loader2, Trophy, User, Mail, Star, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import ReactConfetti from "react-confetti";
+import { Progress } from "@/components/ui/progress";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function GamificationStatus() {
   const { data, isLoading } = useGamificationStatus();
-  const [isExpanded, setIsExpanded] = useState(false);
   const [previousLevel, setPreviousLevel] = useState<number | null>(null);
   const [showLevelUpAnimation, setShowLevelUpAnimation] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
   const [titleChanged, setTitleChanged] = useState(false);
+
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: GetProfile,
+  });
 
   useEffect(() => {
     const handleResize = () => {
@@ -41,16 +57,14 @@ export function GamificationStatus() {
 
   if (isLoading) {
     return (
-      <div className="fixed top-4 right-4 p-3 bg-white/10 backdrop-blur-lg rounded-2xl shadow-lg">
+      <div className="fixed top-4 right-4 p-3 bg-white/10 backdrop-blur-lg rounded-full shadow-lg">
         <Loader2 className="w-6 h-6 animate-spin text-primary" />
       </div>
     );
   }
 
   const experiencePercentage =
-    (Math.floor(data?.experience ?? 0) /
-      (data?.totalExperienceForNextLevel ?? 1)) *
-    100;
+    ((data?.experience ?? 0) / (data?.totalExperienceForNextLevel ?? 1)) * 100;
 
   const currentTitle = data?.level
     ? getHonorificTitle(data.level)
@@ -96,7 +110,8 @@ export function GamificationStatus() {
                 </p>
                 {titleChanged && (
                   <p className="text-lg text-yellow-800 mb-4">
-                    Novo título: <p className="font-bold">{currentTitle}</p>
+                    Novo título:{" "}
+                    <span className="font-bold">{currentTitle}</span>
                   </p>
                 )}
                 <motion.div
@@ -112,71 +127,51 @@ export function GamificationStatus() {
           </>
         )}
       </AnimatePresence>
-      <motion.div
-        className="fixed top-5 right-5 bg-white/90 border backdrop-blur-lg shadow-lg rounded-2xl overflow-hidden"
-        initial={{ height: "auto" }}
-        animate={{ height: isExpanded ? "auto" : "40px" }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-      >
-        <motion.div
-          className="flex items-center justify-between p-3 cursor-pointer"
-          onClick={() => setIsExpanded(!isExpanded)}
-        >
-          <div className="flex items-center">
-            <span className="text-sm font-bold text-gray-800 mr-2">
-              Nível {data?.level}
-            </span>
-            <motion.div
-              animate={{ rotate: isExpanded ? 180 : 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {isExpanded ? (
-                <ChevronUp className="w-4 h-4 text-gray-600" />
-              ) : (
-                <ChevronDown className="w-4 h-4 text-gray-600" />
-              )}
-            </motion.div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="fixed top-4 right-6 border flex items-center space-x-2 bg-white/90 backdrop-blur-lg shadow-lg rounded-md p-2 pr-4 hover:bg-white/95 transition-colors">
+            <span className="font-medium text-sm">{profile?.name}</span>
+            <ChevronDown className="w-4 h-4 text-gray-500" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-64 mt-2" align="end">
+          <DropdownMenuLabel>Perfil do Usuário</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <div className="px-2 py-1.5 space-y-2">
+            <div className="flex items-center space-x-2">
+              <Mail className="w-4 h-4 text-gray-500" />
+              <span className="text-sm text-gray-600">{profile?.email}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <User className="w-4 h-4 text-gray-500" />
+              <span className="text-sm text-gray-600">Nível {data?.level}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Star className="w-4 h-4 text-gray-500" />
+              <span className="text-sm text-gray-600">{currentTitle}</span>
+            </div>
           </div>
-        </motion.div>
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              className="p-3 space-y-3"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="text-xs text-gray-600 mb-2 font-bold">
-                {currentTitle}
-              </div>
-              <div>
-                <div className="flex justify-between text-xs text-gray-600 mb-1">
-                  <span>XP</span>
-                  <span>
-                    {Math.floor(data?.experience ?? 0)} /{" "}
-                    {data?.totalExperienceForNextLevel}
-                  </span>
-                </div>
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${experiencePercentage}%` }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
-                  />
-                </div>
-              </div>
-              <div className="text-xs text-gray-600">
-                Próximo nível:{" "}
+          <DropdownMenuSeparator />
+          <div className="px-2 py-1.5 space-y-2">
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>XP</span>
+              <span>
+                {Math.floor(data?.experience ?? 0)} /{" "}
+                {data?.totalExperienceForNextLevel}
+              </span>
+            </div>
+            <Progress value={experiencePercentage} className="h-2" />
+            <div className="flex items-center justify-between text-sm text-gray-600">
+              <span>Próximo nível</span>
+              <span>
                 {(data?.totalExperienceForNextLevel ?? 0) -
                   Math.floor(data?.experience ?? 0)}{" "}
                 XP restantes
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+              </span>
+            </div>
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </>
   );
 }
