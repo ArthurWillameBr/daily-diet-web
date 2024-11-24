@@ -23,10 +23,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader, Plus } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { toast } from "sonner";
 
 const createMealSchema = z.object({
-  name: z.string(),
-  description: z.string(),
+  name: z
+    .string()
+    .min(2, "Nome muito curto")
+    .max(50, "Nome muito longo")
+    .nonempty("Nome é obrigatório"),
+  description: z.string().max(100, "Descrição muito longa").nullable(),
   dateTime: z.date(),
   time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Hora inválida"),
   isOnDiet: z.boolean(),
@@ -50,6 +55,13 @@ export function AddMealsForm({
 
   const form = useForm<CreateMealFormSchema>({
     resolver: zodResolver(createMealSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      dateTime: new Date(),
+      time: "12:00",
+      isOnDiet: true,
+    },
   });
 
   const { mutateAsync: createMeal, isPending } = useMutation({
@@ -78,10 +90,17 @@ export function AddMealsForm({
     const combinedDateTime = new Date(data.dateTime);
     combinedDateTime.setHours(hours, minutes);
 
-    await createMeal({
-      ...data,
-      dateTime: combinedDateTime,
-    });
+    try {
+      await createMeal({
+        ...data,
+        dateTime: combinedDateTime,
+      });
+      toast.success("Refeição cadastrada com sucesso");
+      form.reset();
+    } catch (error) {
+      console.log(error);
+      toast.error("Erro ao cadastrar refeição");
+    }
   }
 
   return (
@@ -140,6 +159,7 @@ export function AddMealsForm({
                     <Input
                       placeholder="200g de frango grelhado com legumes"
                       {...field}
+                      value={field.value ?? ""}
                     />
                   </FormControl>
 
