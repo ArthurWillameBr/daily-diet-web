@@ -22,6 +22,7 @@ import { ArrowLeft, BotIcon, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Markdown from "react-markdown";
+import { SkeletonStatistics } from "./skeleton-statistics";
 
 export function StatisticsPage() {
   const [report, setReport] = useState<string | null>("");
@@ -31,25 +32,40 @@ export function StatisticsPage() {
     setReport(aiReport.report);
   }
 
-  const { data: totalMeals } = useQuery({
+  const { data: totalMeals, isLoading: isTotalMealsLoading } = useQuery({
     queryKey: ["total-meals"],
     queryFn: GetTotalMeals,
   });
 
-  const { data: totalMealsWithinDiet } = useQuery({
+  const {
+    data: totalMealsWithinDiet,
+    isLoading: isTotalMealsWithinDietLoading,
+  } = useQuery({
     queryKey: ["meals-within-diet"],
     queryFn: GetTotalMealsWithinDiet,
   });
 
-  const { data: bestOnDietSequence } = useQuery({
-    queryKey: ["best-on-diet-sequence"],
-    queryFn: GetBestOnDietSequence,
-  });
+  const { data: bestOnDietSequence, isLoading: isBestOnDietSequenceLoading } =
+    useQuery({
+      queryKey: ["best-on-diet-sequence"],
+      queryFn: GetBestOnDietSequence,
+    });
 
-  const { data: totalMealsOutsideDiet } = useQuery({
-    queryKey: ["meals-outside-diet"],
-    queryFn: GetTotalMealsOutsideDiet,
-  });
+  const { data: totalMealsOutsideDiet, isLoading: isMealsOutsideDietLoading } =
+    useQuery({
+      queryKey: ["meals-outside-diet"],
+      queryFn: GetTotalMealsOutsideDiet,
+    });
+
+  const isLoading =
+    isTotalMealsLoading ||
+    isTotalMealsWithinDietLoading ||
+    isBestOnDietSequenceLoading ||
+    isMealsOutsideDietLoading;
+
+  if (isLoading) {
+    return <SkeletonStatistics />;
+  }
 
   const dietPercentage = calculateDietPercentage(
     totalMeals,

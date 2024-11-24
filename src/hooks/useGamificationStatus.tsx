@@ -8,7 +8,7 @@ export function useGamificationStatus() {
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
   });
-
+  console.log(data);
   return {
     data,
     isLoading,

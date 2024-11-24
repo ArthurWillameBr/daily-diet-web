@@ -1,4 +1,5 @@
 import { useGamificationStatus } from "@/hooks/useGamificationStatus";
+import { getHonorificTitle } from "@/utils/get-honorific-title";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, ChevronUp, ChevronDown, Trophy } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -10,6 +11,7 @@ export function GamificationStatus() {
   const [previousLevel, setPreviousLevel] = useState<number | null>(null);
   const [showLevelUpAnimation, setShowLevelUpAnimation] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+  const [titleChanged, setTitleChanged] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -21,9 +23,15 @@ export function GamificationStatus() {
   }, []);
 
   useEffect(() => {
-    if (data?.level && previousLevel !== null && data.level > previousLevel) {
-      setShowLevelUpAnimation(true);
-      setTimeout(() => setShowLevelUpAnimation(false), 5000);
+    if (data?.level && previousLevel !== null) {
+      if (data.level > previousLevel) {
+        setShowLevelUpAnimation(true);
+        setTimeout(() => setShowLevelUpAnimation(false), 5000);
+      }
+
+      const previousTitle = getHonorificTitle(previousLevel);
+      const currentTitle = getHonorificTitle(data.level);
+      setTitleChanged(previousTitle !== currentTitle);
     }
 
     if (data?.level) {
@@ -43,6 +51,10 @@ export function GamificationStatus() {
     (Math.floor(data?.experience ?? 0) /
       (data?.totalExperienceForNextLevel ?? 1)) *
     100;
+
+  const currentTitle = data?.level
+    ? getHonorificTitle(data.level)
+    : "Sem título";
 
   return (
     <>
@@ -79,9 +91,14 @@ export function GamificationStatus() {
                 <h1 className="text-4xl font-bold text-yellow-800 mb-2">
                   Parabéns!
                 </h1>
-                <p className="text-xl text-yellow-900 mb-4">
+                <p className="text-xl text-yellow-900 mb-2">
                   Você alcançou o Nível {data?.level}!
                 </p>
+                {titleChanged && (
+                  <p className="text-lg text-yellow-800 mb-4">
+                    Novo título: <p className="font-bold">{currentTitle}</p>
+                  </p>
+                )}
                 <motion.div
                   className="text-lg font-semibold text-yellow-700"
                   initial={{ opacity: 0, y: 10 }}
@@ -95,30 +112,31 @@ export function GamificationStatus() {
           </>
         )}
       </AnimatePresence>
-
       <motion.div
         className="fixed top-5 right-5 bg-white/90 border backdrop-blur-lg shadow-lg rounded-2xl overflow-hidden"
         initial={{ height: "auto" }}
-        animate={{ height: isExpanded ? "auto" : "48px" }}
+        animate={{ height: isExpanded ? "auto" : "40px" }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
         <motion.div
           className="flex items-center justify-between p-3 cursor-pointer"
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          <span className="text-sm font-bold text-gray-800">
-            Nível {data?.level}
-          </span>
-          <motion.div
-            animate={{ rotate: isExpanded ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {isExpanded ? (
-              <ChevronUp className="w-4 h-4 text-gray-600" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-gray-600" />
-            )}
-          </motion.div>
+          <div className="flex items-center">
+            <span className="text-sm font-bold text-gray-800 mr-2">
+              Nível {data?.level}
+            </span>
+            <motion.div
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {isExpanded ? (
+                <ChevronUp className="w-4 h-4 text-gray-600" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-gray-600" />
+              )}
+            </motion.div>
+          </div>
         </motion.div>
         <AnimatePresence>
           {isExpanded && (
@@ -129,6 +147,9 @@ export function GamificationStatus() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
+              <div className="text-xs text-gray-600 mb-2 font-bold">
+                {currentTitle}
+              </div>
               <div>
                 <div className="flex justify-between text-xs text-gray-600 mb-1">
                   <span>XP</span>

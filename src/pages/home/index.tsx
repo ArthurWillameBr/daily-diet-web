@@ -28,23 +28,27 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { SkeletonHome } from "./sheleton-home";
 
 export function Home() {
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
 
-  const { data: meals } = useQuery({
+  const { data: meals, isLoading: isMealsLoading } = useQuery({
     queryKey: ["meals"],
     queryFn: GetMeal,
   });
 
-  const { data: totalMeals } = useQuery({
+  const { data: totalMeals, isLoading: isTotalMealsLoading } = useQuery({
     queryKey: ["total-meals"],
     queryFn: GetTotalMeals,
   });
 
-  const { data: totalMealsWithinDiet } = useQuery({
+  const {
+    data: totalMealsWithinDiet,
+    isLoading: isTotalMealsWithinDietLoading,
+  } = useQuery({
     queryKey: ["meals-within-diet"],
     queryFn: GetTotalMealsWithinDiet,
   });
@@ -64,6 +68,13 @@ export function Home() {
     totalMeals,
     totalMealsWithinDiet
   );
+
+  const isLoading =
+    isMealsLoading || isTotalMealsLoading || isTotalMealsWithinDietLoading;
+
+  if (isLoading) {
+    return <SkeletonHome />;
+  }
 
   const cardColor =
     Number(dietPercentage) >= 50 ? "bg-[#E5F0DB]" : "bg-[#FDE8E8]";

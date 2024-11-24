@@ -4,6 +4,7 @@ interface GamificationStatus {
   experience: number;
   level: number;
   totalExperienceForNextLevel: number;
+  title: string;
 }
 
 export async function GetGamificationStatus() {
