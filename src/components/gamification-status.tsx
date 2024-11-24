@@ -5,17 +5,27 @@ import { useGamificationStatus } from "@/hooks/useGamificationStatus";
 import { getHonorificTitle } from "@/utils/get-honorific-title";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Trophy, User, Mail, Star, ChevronDown } from "lucide-react";
+import {
+  Loader2,
+  Trophy,
+  User,
+  Mail,
+  Star,
+  ChevronDown,
+  LogOut,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import ReactConfetti from "react-confetti";
 import { Progress } from "@/components/ui/progress";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/useAuth";
 
 export function GamificationStatus() {
   const { data, isLoading } = useGamificationStatus();
@@ -23,6 +33,8 @@ export function GamificationStatus() {
   const [showLevelUpAnimation, setShowLevelUpAnimation] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
   const [titleChanged, setTitleChanged] = useState(false);
+
+  const { signOut } = useAuth();
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
@@ -170,6 +182,11 @@ export function GamificationStatus() {
               </span>
             </div>
           </div>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={signOut} className="cursor-pointer">
+            <LogOut />
+            <span className="text-sm">Sair</span>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>
