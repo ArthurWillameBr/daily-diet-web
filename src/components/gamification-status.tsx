@@ -97,7 +97,7 @@ export function GamificationStatus() {
       </AnimatePresence>
 
       <motion.div
-        className="fixed top-5 right-5 bg-white/90 backdrop-blur-lg shadow-lg rounded-2xl overflow-hidden"
+        className="fixed top-5 right-5 bg-white/90 border backdrop-blur-lg shadow-lg rounded-2xl overflow-hidden"
         initial={{ height: "auto" }}
         animate={{ height: isExpanded ? "auto" : "48px" }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -105,7 +105,6 @@ export function GamificationStatus() {
         <motion.div
           className="flex items-center justify-between p-3 cursor-pointer"
           onClick={() => setIsExpanded(!isExpanded)}
-          whileHover={{ backgroundColor: "rgba(0, 0, 0, 0.05)" }}
         >
           <span className="text-sm font-bold text-gray-800">
             Nível {data?.level}
