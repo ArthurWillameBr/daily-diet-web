@@ -23,6 +23,7 @@ import { Link } from "react-router-dom";
 import { SkeletonHome } from "./sheleton-home";
 import { AddMealButton } from "@/components/add-meal-button";
 import { UpdateMealButton } from "@/components/update-meal-button";
+import { toast } from "sonner";
 
 export function Home() {
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
@@ -54,7 +55,13 @@ export function Home() {
   });
 
   async function handleDeleteMeal(mealId: string) {
-    await deleteMeal({ mealId });
+    try {
+      await deleteMeal({ mealId });
+      toast.success("Refeição excluída com sucesso");
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao excluir refeição");
+    }
   }
 
   const dietPercentage = calculateDietPercentage(
@@ -111,7 +118,7 @@ export function Home() {
           <h2 className="font-semibold text-lg md:text-xl">Refeições</h2>
           <AddMealButton />
         </div>
-        <ScrollArea className="flex-1 px-4 md:px-8">
+        <ScrollArea className="flex-1 px-4 pb-12 md:px-8">
           <div className="space-y-6 pb-6 md:pb-8">
             {meals?.map((meal, index) => (
               <div key={index} className="space-y-4">

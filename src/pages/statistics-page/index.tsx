@@ -3,6 +3,7 @@ import { GetTotalMeals } from "@/api/get-total-meals";
 import { GetTotalMealsOutsideDiet } from "@/api/get-total-meals-outside-diet";
 import { GetTotalMealsWithinDiet } from "@/api/get-total-meals-within-diet";
 import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { calculateDietPercentage } from "@/utils/calculate-diet-percentage";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, TrendingUp, UtensilsCrossed, Check, X } from "lucide-react";
@@ -58,86 +59,76 @@ export function StatisticsPage() {
     Number(dietPercentage) >= 50 ? "text-lime-500" : "text-red-500";
 
   return (
-    <main className="flex flex-col items-center justify-center">
-      <Card className="w-full h-32">
-        <CardContent className={`${cardColor} text-center h-full`}>
-          <div className="relative">
-            <Link to="/home" className="absolute left-0 top-0 p-4">
-              <ArrowLeft
-                className={`${arrowUpRightColor} absolute top-4 left-2 w-6 h-6 md:w-8 md:h-8`}
-              />
-            </Link>
-          </div>
-          <div className="pt-7 md:p-8">
-            <h2 className="text-2xl md:text-4xl font-semibold">
-              {dietPercentage}%
-            </h2>
-            <p className="md:text-lg">das refeições dentro da dieta</p>
-          </div>
+    <main className="flex flex-col h-screen">
+      <Card className="w-full flex-shrink-0">
+        <CardContent
+          className={`${cardColor} text-center p-6 relative h-48 flex flex-col justify-center`}
+        >
+          <Link to="/home" className="absolute left-4 top-4">
+            <ArrowLeft className={`${arrowUpRightColor} w-6 h-6`} />
+          </Link>
+          <h2 className="text-4xl sm:text-5xl font-semibold">
+            {dietPercentage}%
+          </h2>
+          <p className="text-base sm:text-lg mt-2">
+            das refeições dentro da dieta
+          </p>
         </CardContent>
       </Card>
-      <div className="flex w-full items-center justify-between py-6 pl-12">
-        <div className="w-full text-left md:text-center">
-          <h2 className="font-semibold">Estatísticas Gerais</h2>
-        </div>
-        <div className="absolute right-4">
-          <AiReportDialog />
-        </div>
-      </div>
-      <div className="space-y-3">
-        <Card className="border-none shadow-md">
-          <CardContent className="bg-gray-50 rounded-lg text-center h-full">
-            <div className="pt-7 md:p-8">
-              <div className="flex items-center justify-center mb-4">
-                <TrendingUp className="w-6 h-6 text-blue-500" />{" "}
-              </div>
-              <h2 className="text-2xl font-semibold">{bestOnDietSequence}</h2>
-              <p className="text-sm">
-                melhor sequência de pratos dentro da dieta
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-none shadow-md">
-          <CardContent className="bg-gray-50 rounded-lg text-center h-full">
-            <div className="pt-7 md:p-8">
-              <div className="flex items-center justify-center mb-4">
-                <UtensilsCrossed className="w-6 h-6 text-purple-500" />{" "}
-              </div>
-              <h2 className="text-2xl font-semibold">{totalMeals}</h2>
-              <p className="text-sm">refeições registradas</p>
-            </div>
-          </CardContent>
-        </Card>
-        <div className="flex gap-3">
-          <Card className="border-none shadow-md ">
-            <CardContent className="bg-[#E5F0DB] rounded-lg text-center h-full">
-              <div className="pt-7 md:p-8">
+      <ScrollArea className="flex-grow px-4 py-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="flex w-full items-center justify-between">
+            <h2 className="font-semibold text-lg sm:text-xl">
+              Estatísticas Gerais
+            </h2>
+            <AiReportDialog />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+            <Card className="border-none shadow-md col-span-full">
+              <CardContent className="bg-gray-50 rounded-lg text-center p-6">
                 <div className="flex items-center justify-center mb-4">
-                  <Check className="w-6 h-6 text-emerald-500" />{" "}
+                  <TrendingUp className="w-6 h-6 text-blue-500" />
+                </div>
+                <h2 className="text-2xl font-semibold">{bestOnDietSequence}</h2>
+                <p className="text-sm mt-2">
+                  melhor sequência de pratos dentro da dieta
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-none shadow-md col-span-full">
+              <CardContent className="bg-gray-50 rounded-lg text-center p-6">
+                <div className="flex items-center justify-center mb-4">
+                  <UtensilsCrossed className="w-6 h-6 text-purple-500" />
+                </div>
+                <h2 className="text-2xl font-semibold">{totalMeals}</h2>
+                <p className="text-sm mt-2">refeições registradas</p>
+              </CardContent>
+            </Card>
+            <Card className="border-none shadow-md">
+              <CardContent className="bg-[#E5F0DB] rounded-lg text-center p-6">
+                <div className="flex items-center justify-center mb-4">
+                  <Check className="w-6 h-6 text-emerald-500" />
                 </div>
                 <h2 className="text-2xl font-semibold">
                   {totalMealsWithinDiet}
                 </h2>
-                <p className="text-sm">Refeições dentro da dieta</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-none shadow-md">
-            <CardContent className="bg-[#FDE8E8] rounded-lg text-center h-full">
-              <div className="pt-7 md:p-8">
+                <p className="text-sm mt-2">Refeições dentro da dieta</p>
+              </CardContent>
+            </Card>
+            <Card className="border-none shadow-md">
+              <CardContent className="bg-[#FDE8E8] rounded-lg text-center p-6">
                 <div className="flex items-center justify-center mb-4">
-                  <X className="w-6 h-6 text-rose-500" />{" "}
+                  <X className="w-6 h-6 text-rose-500" />
                 </div>
                 <h2 className="text-2xl font-semibold">
                   {totalMealsOutsideDiet}
                 </h2>
-                <p className="text-sm">Refeições fora da dieta</p>
-              </div>
-            </CardContent>
-          </Card>
+                <p className="text-sm mt-2">Refeições fora da dieta</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
+      </ScrollArea>
     </main>
   );
 }
