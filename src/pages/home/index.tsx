@@ -2,7 +2,6 @@ import { DeleteMeal } from "@/api/delete-meal";
 import { GetMeal } from "@/api/get-meal";
 import { GetTotalMeals } from "@/api/get-total-meals";
 import { GetTotalMealsWithinDiet } from "@/api/get-total-meals-within-diet";
-import { AddMealsForm } from "@/components/add-meals-form";
 import { GamificationStatus } from "@/components/gamification-status";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,15 +18,15 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { calculateDietPercentage } from "@/utils/calculate-diet-percentage";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDate } from "date-fns";
-import { ArrowUpRight, PencilLine, Trash2, Utensils } from "lucide-react";
-import { useState } from "react";
+import { ArrowUpRight, Trash2, Utensils } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SkeletonHome } from "./sheleton-home";
+import { AddMealButton } from "@/components/add-meal-button";
+import { UpdateMealButton } from "@/components/update-meal-button";
 
 export function Home() {
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
   const queryClient = useQueryClient();
-  const [isOpen, setIsOpen] = useState(false);
 
   const { data: meals, isLoading: isMealsLoading } = useQuery({
     queryKey: ["meals"],
@@ -110,7 +109,7 @@ export function Home() {
         </div>
         <div className="px-4 md:px-8 py-2 md:py-4 space-y-3">
           <h2 className="font-semibold text-lg md:text-xl">Refeições</h2>
-          <AddMealsForm isOpen={isOpen} setIsOpen={setIsOpen} />
+          <AddMealButton />
         </div>
         <ScrollArea className="flex-1 px-4 md:px-8">
           <div className="space-y-6 pb-6 md:pb-8">
@@ -149,7 +148,7 @@ export function Home() {
                       <div className="p-4 md:p-5 flex-grow overflow-auto">
                         <h3 className="font-semibold text-lg">{meal.name}</h3>
                         <p className="text-sm md:text-base text-gray-500/90">
-                          {meal.description}
+                          {meal.description || "Sem descrição"}
                         </p>
                         <h2 className="pt-4 text-md font-semibold">
                           Data e Hora
@@ -172,9 +171,7 @@ export function Home() {
                         </Badge>
                       </div>
                       <div className="flex gap-2 items-center">
-                        <Button className="w-full">
-                          <PencilLine /> Editar Refeição
-                        </Button>
+                        <UpdateMealButton mealId={meal.id} mealValues={meal} />
                         <Button
                           onClick={() => handleDeleteMeal(meal.id)}
                           variant="ghost"
