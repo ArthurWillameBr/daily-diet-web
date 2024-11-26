@@ -3,15 +3,29 @@ import { GetTotalMeals } from "@/api/get-total-meals";
 import { GetTotalMealsOutsideDiet } from "@/api/get-total-meals-outside-diet";
 import { GetTotalMealsWithinDiet } from "@/api/get-total-meals-within-diet";
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { calculateDietPercentage } from "@/utils/calculate-diet-percentage";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, TrendingUp, UtensilsCrossed, Check, X } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  ArrowLeft,
+  TrendingUp,
+  UtensilsCrossed,
+  Check,
+  X,
+  ChefHat,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { SkeletonStatistics } from "./skeleton-statistics";
 import { AiReportDialog } from "@/components/ai-report-dialog";
+import { Button } from "@/components/ui/button";
+import { RevenueGeneration } from "@/api/revenue-generation";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { RecipeDialog } from "@/components/recipe-dialog";
 
 export function StatisticsPage() {
+  const [isGeneratingRecipe, setIsGeneratingRecipe] = useState(false);
+  const [isRecipeDialogOpen, setIsRecipeDialogOpen] = useState(false);
+
   const { data: totalMeals, isLoading: isTotalMealsLoading } = useQuery({
     queryKey: ["total-meals"],
     queryFn: GetTotalMeals,
@@ -36,6 +50,22 @@ export function StatisticsPage() {
       queryKey: ["meals-outside-diet"],
       queryFn: GetTotalMealsOutsideDiet,
     });
+
+  const { data: revenueGenerate, mutateAsync: generateRecipe } = useMutation({
+    mutationFn: RevenueGeneration,
+  });
+
+  async function handleGenerateRecipe() {
+    setIsGeneratingRecipe(true);
+    try {
+      await generateRecipe();
+      setIsRecipeDialogOpen(true);
+    } catch (error) {
+      console.error("Failed to generate recipe:", error);
+    } finally {
+      setIsGeneratingRecipe(false);
+    }
+  }
 
   const isLoading =
     isTotalMealsLoading ||
@@ -75,60 +105,75 @@ export function StatisticsPage() {
           </p>
         </CardContent>
       </Card>
-      <ScrollArea className="flex-grow px-4 py-6">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <div className="flex w-full items-center justify-between">
-            <h2 className="font-semibold text-lg sm:text-xl">
-              Estatísticas Gerais
-            </h2>
+      <div className="w-[800px] mx-auto space-y-6">
+        <div className="flex w-full items-center justify-between mt-4">
+          <h2 className="font-semibold text-lg sm:text-xl">
+            Estatísticas Gerais
+          </h2>
+          <div className="flex gap-2 items-center">
             <AiReportDialog />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-            <Card className="border-none shadow-md col-span-full">
-              <CardContent className="bg-gray-50 rounded-lg text-center p-6">
-                <div className="flex items-center justify-center mb-4">
-                  <TrendingUp className="w-6 h-6 text-blue-500" />
-                </div>
-                <h2 className="text-2xl font-semibold">{bestOnDietSequence}</h2>
-                <p className="text-sm mt-2">
-                  melhor sequência de pratos dentro da dieta
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="border-none shadow-md col-span-full">
-              <CardContent className="bg-gray-50 rounded-lg text-center p-6">
-                <div className="flex items-center justify-center mb-4">
-                  <UtensilsCrossed className="w-6 h-6 text-purple-500" />
-                </div>
-                <h2 className="text-2xl font-semibold">{totalMeals}</h2>
-                <p className="text-sm mt-2">refeições registradas</p>
-              </CardContent>
-            </Card>
-            <Card className="border-none shadow-md">
-              <CardContent className="bg-[#E5F0DB] rounded-lg text-center p-6">
-                <div className="flex items-center justify-center mb-4">
-                  <Check className="w-6 h-6 text-emerald-500" />
-                </div>
-                <h2 className="text-2xl font-semibold">
-                  {totalMealsWithinDiet}
-                </h2>
-                <p className="text-sm mt-2">Refeições dentro da dieta</p>
-              </CardContent>
-            </Card>
-            <Card className="border-none shadow-md">
-              <CardContent className="bg-[#FDE8E8] rounded-lg text-center p-6">
-                <div className="flex items-center justify-center mb-4">
-                  <X className="w-6 h-6 text-rose-500" />
-                </div>
-                <h2 className="text-2xl font-semibold">
-                  {totalMealsOutsideDiet}
-                </h2>
-                <p className="text-sm mt-2">Refeições fora da dieta</p>
-              </CardContent>
-            </Card>
+            <Button
+              size="sm"
+              onClick={handleGenerateRecipe}
+              disabled={isGeneratingRecipe}
+            >
+              {isGeneratingRecipe ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <ChefHat className="mr-2 h-4 w-4" />
+              )}
+              Gerar Receita
+            </Button>
           </div>
         </div>
-      </ScrollArea>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+          <Card className="border-none shadow-md col-span-full">
+            <CardContent className="bg-gray-50 rounded-lg text-center p-6">
+              <div className="flex items-center justify-center mb-4">
+                <TrendingUp className="w-6 h-6 text-blue-500" />
+              </div>
+              <h2 className="text-2xl font-semibold">{bestOnDietSequence}</h2>
+              <p className="text-sm mt-2">
+                melhor sequência de pratos dentro da dieta
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="border-none shadow-md col-span-full">
+            <CardContent className="bg-gray-50 rounded-lg text-center p-6">
+              <div className="flex items-center justify-center mb-4">
+                <UtensilsCrossed className="w-6 h-6 text-purple-500" />
+              </div>
+              <h2 className="text-2xl font-semibold">{totalMeals}</h2>
+              <p className="text-sm mt-2">refeições registradas</p>
+            </CardContent>
+          </Card>
+          <Card className="border-none shadow-md">
+            <CardContent className="bg-[#E5F0DB] rounded-lg text-center p-6">
+              <div className="flex items-center justify-center mb-4">
+                <Check className="w-6 h-6 text-emerald-500" />
+              </div>
+              <h2 className="text-2xl font-semibold">{totalMealsWithinDiet}</h2>
+              <p className="text-sm mt-2">Refeições dentro da dieta</p>
+            </CardContent>
+          </Card>
+          <Card className="border-none shadow-md">
+            <CardContent className="bg-[#FDE8E8] rounded-lg text-center p-6">
+              <div className="flex items-center justify-center mb-4">
+                <X className="w-6 h-6 text-rose-500" />
+              </div>
+              <h2 className="text-2xl font-semibold">
+                {totalMealsOutsideDiet}
+              </h2>
+              <p className="text-sm mt-2">Refeições fora da dieta</p>
+            </CardContent>
+          </Card>
+        </div>
+        <RecipeDialog
+          recipe={revenueGenerate?.recipe || null}
+          isOpen={isRecipeDialogOpen}
+          onClose={() => setIsRecipeDialogOpen(false)}
+        />
+      </div>
     </main>
   );
 }

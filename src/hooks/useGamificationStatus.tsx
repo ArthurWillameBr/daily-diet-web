@@ -5,10 +5,9 @@ export function useGamificationStatus() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["gamification-status"],
     queryFn: GetGamificationStatus,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10, // 10 minutes
     refetchOnWindowFocus: false,
   });
-  console.log(data);
   return {
     data,
     isLoading,
