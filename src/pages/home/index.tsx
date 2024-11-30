@@ -35,18 +35,31 @@ export function Home() {
           <AddMealButton />
         </div>
         <ScrollArea className="flex-1 px-4 pb-12 md:px-8">
-          <div className="space-y-6 pb-6 md:pb-8">
-            {meals?.map((meal, index) => (
-              <div key={index} className="space-y-4">
-                <h2 className="font-medium text-base md:text-lg pt-4">
-                  {meal.date}
-                </h2>
-                {meal.meals.map((meal, index) => (
-                  <MealsDetailsDialog key={index} meal={meal} />
-                ))}
-              </div>
-            ))}
-          </div>
+          {meals && meals.length > 0 ? (
+            <div className="space-y-6 pb-6 md:pb-8">
+              {meals.map((meal, index) => (
+                <div key={index} className="space-y-4">
+                  <h2 className="font-medium text-base md:text-lg pt-4">
+                    {meal.date}
+                  </h2>
+                  {meal.meals.map((meal, index) => (
+                    <MealsDetailsDialog key={index} meal={meal} />
+                  ))}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center mt-2 h-full text-center">
+              <Utensils className="w-16 h-16 text-gray-400 mb-4" />
+              <p className="text-xl font-medium text-gray-600 mb-2">
+                Nenhuma refeição cadastrada
+              </p>
+              <p className="text-gray-500">
+                Clique no botão "Adicionar Refeição" para começar a registrar
+                suas refeições.
+              </p>
+            </div>
+          )}
         </ScrollArea>
       </main>
     </>

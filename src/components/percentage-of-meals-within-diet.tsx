@@ -23,9 +23,17 @@ export function PercentageOfMealsWithinDiet() {
   );
 
   const cardColor =
-    Number(dietPercentage) >= 50 ? "bg-[#E5F0DB]" : "bg-[#FDE8E8]";
+    Number(dietPercentage) > 0
+      ? Number(dietPercentage) >= 50
+        ? "bg-[#E5F0DB]"
+        : "bg-[#FDE8E8]"
+      : "bg-gray-100";
   const arrowUpRightColor =
-    Number(dietPercentage) >= 50 ? "text-lime-500" : "text-red-500";
+    Number(dietPercentage) > 0
+      ? Number(dietPercentage) >= 50
+        ? "text-lime-500"
+        : "text-red-500"
+      : "text-gray-400";
 
   return (
     <div className="flex flex-col justify-center items-center p-4 md:p-8">
@@ -41,10 +49,23 @@ export function PercentageOfMealsWithinDiet() {
               />
             </div>
             <div className="p-5 md:p-8">
-              <h2 className="text-2xl md:text-4xl font-semibold">
-                {dietPercentage}%
-              </h2>
-              <p className="md:text-lg">das refeições dentro da dieta</p>
+              {Number(dietPercentage) > 0 ? (
+                <>
+                  <h2 className="text-2xl md:text-4xl font-semibold">
+                    {dietPercentage}%
+                  </h2>
+                  <p className="md:text-lg">das refeições dentro da dieta</p>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-2xl md:text-4xl font-semibold text-gray-600">
+                    0%
+                  </h2>
+                  <p className="md:text-lg text-gray-600">
+                    Nenhuma refeição adicionada ainda
+                  </p>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>

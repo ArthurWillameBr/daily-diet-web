@@ -34,11 +34,7 @@ interface UpsertMealDialogProps {
   defaultValues?: CreateMealFormSchema;
 }
 const createMealSchema = z.object({
-  name: z
-    .string()
-    .min(2, "Nome muito curto")
-    .max(50, "Nome muito longo")
-    .nonempty("Nome é obrigatório"),
+  name: z.string().min(1, "Nome muito curto").max(50, "Nome muito longo"),
   description: z.string().max(100, "Descrição muito longa").nullable(),
   date: z.date(),
   time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Hora inválida"),

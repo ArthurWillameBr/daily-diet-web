@@ -36,6 +36,8 @@ export function MealsDetailsDialog({ meal }: MealDetailsProps) {
     mutationFn: DeleteMeal,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["meals"] });
+      queryClient.invalidateQueries({ queryKey: ["total-meals"] });
+      queryClient.invalidateQueries({ queryKey: ["meals-within-diet"] });
     },
   });
 
