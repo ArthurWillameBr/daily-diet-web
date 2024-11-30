@@ -23,8 +23,8 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const signInSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+  email: z.string().email("E-mail inválido"),
+  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
 });
 
 type SignInFormSchema = z.infer<typeof signInSchema>;

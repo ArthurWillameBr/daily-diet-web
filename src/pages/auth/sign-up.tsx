@@ -24,9 +24,9 @@ import { Loader } from "lucide-react";
 import { toast } from "sonner";
 
 const signUpSchema = z.object({
-  name: z.string().nonempty(),
-  email: z.string().email(),
-  password: z.string().min(6),
+  name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
+  email: z.string().email("E-mail inválido"),
+  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
 });
 
 type SignUpFormSchema = z.infer<typeof signUpSchema>;
