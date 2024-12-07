@@ -1,8 +1,5 @@
-"use client";
-
 import { GetProfile } from "@/api/get-profile";
 import { useGamificationStatus } from "@/hooks/useGamificationStatus";
-import { getHonorificTitle } from "@/utils/get-honorific-title";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -13,6 +10,8 @@ import {
   Star,
   ChevronDown,
   LogOut,
+  CreditCard,
+  Info,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import ReactConfetti from "react-confetti";
@@ -26,13 +25,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 export function GamificationStatus() {
   const { data, isLoading } = useGamificationStatus();
   const [previousLevel, setPreviousLevel] = useState<number | null>(null);
   const [showLevelUpAnimation, setShowLevelUpAnimation] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
-  const [titleChanged, setTitleChanged] = useState(false);
+  const [previousCredits, setPreviousCredits] = useState<number | null>(null);
 
   const { signOut } = useAuth();
 
@@ -56,16 +61,16 @@ export function GamificationStatus() {
         setShowLevelUpAnimation(true);
         setTimeout(() => setShowLevelUpAnimation(false), 5000);
       }
-
-      const previousTitle = getHonorificTitle(previousLevel);
-      const currentTitle = getHonorificTitle(data.level);
-      setTitleChanged(previousTitle !== currentTitle);
     }
 
     if (data?.level) {
       setPreviousLevel(data.level);
     }
-  }, [data?.level, previousLevel]);
+
+    if (data?.creditsEarned) {
+      setPreviousCredits(data.creditsEarned - 1);
+    }
+  }, [data?.level, previousLevel, data?.creditsEarned]);
 
   if (isLoading) {
     return (
@@ -77,10 +82,6 @@ export function GamificationStatus() {
 
   const experiencePercentage =
     ((data?.experience ?? 0) / (data?.totalExperienceForNextLevel ?? 1)) * 100;
-
-  const currentTitle = data?.level
-    ? getHonorificTitle(data.level)
-    : "Sem título";
 
   return (
     <>
@@ -120,17 +121,22 @@ export function GamificationStatus() {
                 <p className="text-xl text-yellow-900 mb-2">
                   Você alcançou o Nível {data?.level}!
                 </p>
-                {titleChanged && (
-                  <p className="text-lg text-yellow-800 mb-4">
-                    Novo título:{" "}
-                    <span className="font-bold">{currentTitle}</span>
-                  </p>
-                )}
+                <p className="text-lg text-yellow-800 mb-4">
+                  Seu título: <span className="font-bold">{data?.title}</span>
+                </p>
                 <motion.div
                   className="text-lg font-semibold text-yellow-700"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
+                >
+                  Você ganhou 1 crédito!
+                </motion.div>
+                <motion.div
+                  className="text-lg font-semibold text-yellow-700 mt-2"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 }}
                 >
                   Continue assim!
                 </motion.div>
@@ -159,8 +165,24 @@ export function GamificationStatus() {
               <span className="text-sm text-gray-600">Nível {data?.level}</span>
             </div>
             <div className="flex items-center space-x-2">
+              <CreditCard className="w-4 h-4 text-gray-500" />
+              <div className="text-sm text-gray-600 flex items-center">
+                Créditos {data?.creditsEarned}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="w-3 h-3 text-gray-500 ml-1 mb-[1px] cursor-pointer" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Use creditor para gerar receitas com IA
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
               <Star className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-600">{currentTitle}</span>
+              <span className="text-sm text-gray-600">{data?.title}</span>
             </div>
           </div>
           <DropdownMenuSeparator />
@@ -184,7 +206,7 @@ export function GamificationStatus() {
           </div>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={signOut} className="cursor-pointer">
-            <LogOut />
+            <LogOut className="w-4 h-4 mr-2" />
             <span className="text-sm">Sair</span>
           </DropdownMenuItem>
         </DropdownMenuContent>

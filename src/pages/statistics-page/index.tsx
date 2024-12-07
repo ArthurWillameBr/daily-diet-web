@@ -4,7 +4,7 @@ import { GetTotalMealsOutsideDiet } from "@/api/get-total-meals-outside-diet";
 import { GetTotalMealsWithinDiet } from "@/api/get-total-meals-within-diet";
 import { Card, CardContent } from "@/components/ui/card";
 import { calculateDietPercentage } from "@/utils/calculate-diet-percentage";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   TrendingUp,
@@ -21,10 +21,20 @@ import { RevenueGeneration } from "@/api/revenue-generation";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { RecipeDialog } from "@/components/recipe-dialog";
+import { useGamificationStatus } from "@/hooks/useGamificationStatus";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function StatisticsPage() {
   const [isGeneratingRecipe, setIsGeneratingRecipe] = useState(false);
   const [isRecipeDialogOpen, setIsRecipeDialogOpen] = useState(false);
+  const { data: gamificationStatus } = useGamificationStatus();
+
+  const queryClient = useQueryClient();
 
   const { data: totalMeals, isLoading: isTotalMealsLoading } = useQuery({
     queryKey: ["total-meals"],
@@ -53,9 +63,15 @@ export function StatisticsPage() {
 
   const { data: revenueGenerate, mutateAsync: generateRecipe } = useMutation({
     mutationFn: RevenueGeneration,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["gamification-status"] });
+    },
   });
 
   async function handleGenerateRecipe() {
+    if ((gamificationStatus?.creditsEarned ?? 0) < 1) {
+      return;
+    }
     setIsGeneratingRecipe(true);
     try {
       await generateRecipe();
@@ -112,18 +128,35 @@ export function StatisticsPage() {
           </h2>
           <div className="flex gap-2 items-center">
             <AiReportDialog />
-            <Button
-              size="sm"
-              onClick={handleGenerateRecipe}
-              disabled={isGeneratingRecipe}
-            >
-              {isGeneratingRecipe ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <ChefHat className="mr-2 h-4 w-4" />
-              )}
-              Gerar Receita
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="inline-block cursor-pointer">
+                    {" "}
+                    <Button
+                      size="sm"
+                      onClick={handleGenerateRecipe}
+                      disabled={
+                        isGeneratingRecipe ||
+                        (gamificationStatus?.creditsEarned ?? 0) < 1
+                      }
+                    >
+                      {isGeneratingRecipe ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <ChefHat className="mr-2 h-4 w-4" />
+                      )}
+                      Gerar Receita
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {(gamificationStatus?.creditsEarned ?? 0) < 1
+                    ? "Você precisa de pelo menos 1 crédito para gerar uma receita."
+                    : `Você tem ${gamificationStatus?.creditsEarned} crédito(s) disponível(is).`}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
