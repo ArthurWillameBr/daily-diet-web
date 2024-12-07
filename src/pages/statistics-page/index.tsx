@@ -146,7 +146,7 @@ export function StatisticsPage() {
                       ) : (
                         <ChefHat className="mr-2 h-4 w-4" />
                       )}
-                      Gerar Receita
+                      Gerar Receita com IA
                     </Button>
                   </div>
                 </TooltipTrigger>
